@@ -9,6 +9,7 @@ All positions defined in 1920x1080 base coordinates and scaled proportionally.
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 
 import pygame
@@ -26,6 +27,8 @@ from src.ui.layout import refresh, s, sx, sy
 from src.ui.panel import Panel
 from src.ui.text import pad, ratio_bar
 from src.ui.war_comms_widget import WarCommsWidget
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -167,6 +170,7 @@ class MechSelect(Screen):
     # ------------------------------------------------------------------
 
     def on_enter(self) -> None:
+        """Initialise mech select screen."""
         self._step = 1
         self._selected_faction = Faction.FSA
         self._selected_frame = None
@@ -184,6 +188,12 @@ class MechSelect(Screen):
         self._build_faction_buttons()
         self._build_step_buttons()
         self._build_nav_buttons()
+        logger.info(
+            "MechSelect entered — faction=%s, mechs_available=%d, floors_cleared=%d",
+            self._selected_faction.name,
+            len(self._get_faction_mechns(self._selected_faction)),
+            self._campaign.floors_cleared,
+        )
 
     def _is_faction_unlocked(self, faction: Faction) -> bool:
         required = _FACTION_UNLOCK_FLOORS.get(faction, 99)
@@ -265,6 +275,7 @@ class MechSelect(Screen):
         small_font = self._small_font
         if small_font is None:
             return
+        logger.debug("Building faction content for step %d", self._step)
 
         faction_descs: dict[Faction, str] = {
             Faction.FSA: (
@@ -285,7 +296,17 @@ class MechSelect(Screen):
         }
 
         y = y_start
+        max_y = cp.rect.bottom - sy(24)
         for faction in Faction:
+            if y + btn_h > max_y:
+                logger.warning(
+                    "Faction content overflow at %s — y=%d exceeds max_y=%d",
+                    faction.name,
+                    y,
+                    max_y,
+                )
+                break
+
             unlocked = self._is_faction_unlocked(faction)
             label = faction.name.replace("_", " ").upper()
             if faction == self._selected_faction and unlocked:
@@ -310,20 +331,42 @@ class MechSelect(Screen):
                 )
             )
 
-            # Description below button
+            # Description below button — with bounds checking
             desc = faction_descs.get(faction, "")
             for line in desc.split("\n"):
+                if y + btn_h + sy(16) > max_y:
+                    break
                 desc_surf = small_font.render(line, True, config.PHOSPHOR_DIM)
                 self.display.blit(desc_surf, (btn_x + sx(4), y + btn_h + 2))
                 y += sy(16)
 
             y += sy(12)
 
+        logger.info(
+            "Faction content complete — %d buttons, final y=%d, max_y=%d",
+            len(self._step_buttons),
+            y,
+            max_y,
+        )
+
     def _build_unit_buttons(
         self, cp: Panel, btn_x: int, y_start: int, btn_w: int, btn_h: int
     ) -> None:
+        """Build mech selection buttons with bounds checking."""
         mechs = self._get_faction_mechns(self._selected_faction)
+        max_y = cp.rect.bottom - sy(24)
+        logger.info(
+            "Building unit buttons — faction=%s, mechs=%d",
+            self._selected_faction.name,
+            len(mechs),
+        )
+
         for i, mech in enumerate(mechs):
+            btn_y = y_start + i * sy(38)
+            if btn_y + btn_h > max_y:
+                logger.warning("Unit button %d overflow — y=%d exceeds max_y=%d", i, btn_y, max_y)
+                break
+
             unlocked = self._is_mech_unlocked(mech)
             selected = self._selected_frame == mech
             status = "[SELECTED]" if selected else "[SELECT]"
@@ -339,7 +382,7 @@ class MechSelect(Screen):
             self._step_buttons.append(
                 TerminalButton(
                     btn_x,
-                    y_start + i * sy(38),
+                    btn_y,
                     btn_w,
                     btn_h,
                     label=label,
@@ -348,9 +391,12 @@ class MechSelect(Screen):
                 )
             )
 
+        logger.debug("Created %d unit buttons", len(self._step_buttons))
+
     def _build_pilot_buttons(
         self, cp: Panel, btn_x: int, y_start: int, btn_w: int, btn_h: int
     ) -> None:
+        """Build pilot selection buttons with bounds checking."""
         pilot_types = [
             ("aggressive", "Aggressive — +2 DMG, +Suppressing Fire"),
             ("defensive", "Defensive — +5 HP, +2 OL, +Fortify"),
@@ -358,25 +404,39 @@ class MechSelect(Screen):
             ("scout", "Scout — +1 DMG, +10 EVA, +Scan"),
             ("engineer", "Engineer — +3 HP, +Patch Up"),
         ]
-        for i, (pkey, desc) in enumerate(pilot_types):
+        max_y = cp.rect.bottom - sy(24)
+        logger.debug("Building pilot buttons — %d pilot types", len(pilot_types))
+
+        count = 0
+        for _i, (pkey, desc) in enumerate(pilot_types):
             pilot = self._game_data.get_pilot(pkey)
             if pilot is None:
+                logger.warning("Pilot type %s not found in game data", pkey)
                 continue
+
+            btn_y = y_start + count * sy(38)
+            if btn_y + btn_h > max_y:
+                logger.warning("Pilot button overflow — y=%d exceeds max_y=%d", btn_y, max_y)
+                break
+
             selected = (
                 self._selected_pilot is not None and self._selected_pilot.operator_type == pkey
             )
             status = "[SELECTED]" if selected else "[SELECT]"
-            label = f"[{i + 1}] {desc:<44s} {status}"
+            label = f"[{count + 1}] {desc:<44s} {status}"
             self._step_buttons.append(
                 TerminalButton(
                     btn_x,
-                    y_start + i * sy(38),
+                    btn_y,
                     btn_w + sx(60),
                     btn_h,
                     label=label,
                     on_click=lambda pk=pkey: self._select_pilot(pk),
                 )
             )
+            count += 1
+
+        logger.debug("Created %d pilot buttons", count)
 
     def _build_equipment_buttons(
         self,
@@ -392,6 +452,11 @@ class MechSelect(Screen):
         btn_h_header = sy(30)
         btn_h_item = sy(28)
         items_visible = max(2, (max_y - y_start - sy(100)) // btn_h_item)
+        logger.debug(
+            "Building equipment buttons — max_y=%d, items_visible=%d",
+            max_y,
+            items_visible,
+        )
 
         y = y_start
         for slot in ("weapon", "armor", "utility"):
@@ -418,6 +483,12 @@ class MechSelect(Screen):
             if self._equip_open_slot == slot:
                 items = [eq for eq in self._game_data.equipment if eq.slot == slot]
                 scroll = self._equip_scroll.get(slot, 0)
+                logger.debug(
+                    "Expanded slot %s — items=%d, scroll=%d",
+                    slot,
+                    len(items),
+                    scroll,
+                )
                 visible_count = 0
                 for i in range(items_visible):
                     idx = scroll + i
@@ -425,6 +496,12 @@ class MechSelect(Screen):
                         break
                     item_y = y + section_height + visible_count * btn_h_item
                     if item_y + btn_h_item > max_y:
+                        logger.warning(
+                            "Equipment item overflow — slot=%s, item_y=%d, max_y=%d",
+                            slot,
+                            item_y,
+                            max_y,
+                        )
                         break
                     visible_count += 1
                     eq = items[idx]
@@ -469,9 +546,13 @@ class MechSelect(Screen):
         if font is None:
             return
 
-        # Deployment authorization block
         mech_name = self._selected_frame.name.upper() if self._selected_frame else "UNKNOWN"
         pilot_name = self._selected_pilot.callsign if self._selected_pilot else "UNASSIGNED"
+        logger.info(
+            "Building confirmation — mech=%s, pilot=%s",
+            mech_name,
+            pilot_name,
+        )
 
         lines = [
             "> DEPLOYMENT AUTHORIZED",
@@ -481,7 +562,11 @@ class MechSelect(Screen):
             "  ESTIMATED OPPOSITION: MODERATE",
         ]
         y = y_start
+        max_y = cp.rect.bottom - sy(24)
         for line in lines:
+            if y + sy(28) > max_y:
+                logger.warning("Confirmation text overflow at y=%d", y)
+                break
             surf = font.render(line, True, config.PHOSPHOR_GREEN)
             self.display.blit(surf, (btn_x, y))
             y += sy(28)
@@ -500,6 +585,7 @@ class MechSelect(Screen):
         )
 
     def _build_nav_buttons(self) -> None:
+        """Build navigation buttons with bounds checking."""
         self._nav_buttons.clear()
         refresh(self.display)
         # Step 5 uses inline confirm button — skip nav buttons
@@ -508,6 +594,12 @@ class MechSelect(Screen):
         w, _ = self.display.get_size()
         can_back = self._step > 1
         can_next = self._step < self._max_steps and self._is_step_valid()
+        logger.debug(
+            "Building nav buttons — step=%d, can_back=%s, can_next=%s",
+            self._step,
+            can_back,
+            can_next,
+        )
 
         self._nav_buttons.append(
             TerminalButton(
@@ -600,11 +692,24 @@ class MechSelect(Screen):
             self._build_nav_buttons()
 
     def _on_deploy(self) -> None:
+        """Deploy selected mech and transition to ship menu."""
         if self._selected_frame is not None and self.on_deploy is not None:
             pilot_type = (
                 self._selected_pilot.operator_type if self._selected_pilot else "aggressive"
             )
+            logger.info(
+                "Deploying — frame=%s, pilot=%s, equipment=%s",
+                self._selected_frame.id,
+                pilot_type,
+                self._equipment,
+            )
             self.on_deploy(self._selected_frame, pilot_type, dict(self._equipment))
+        else:
+            logger.warning(
+                "Deploy attempted with frame=%s, on_deploy_cb=%s",
+                self._selected_frame,
+                self.on_deploy is not None,
+            )
 
     # ------------------------------------------------------------------
     # Events
@@ -766,10 +871,12 @@ class MechSelect(Screen):
         font: pygame.font.Font,
         small_font: pygame.font.Font,
     ) -> None:
+        """Render preview panel content with bounds checking."""
         pp = self._preview_panel
         assert pp is not None
         x = pp.rect.left + sx(12)
         y = pp.rect.top + sy(24)
+        max_y = pp.rect.bottom - sy(8)
 
         if self._selected_frame is None:
             surface.blit(
@@ -781,6 +888,9 @@ class MechSelect(Screen):
         mech = self._selected_frame
         iff_sym = _IFF_SYMBOLS.get(mech.iff_shape.name, "?")
         iff_col = self._get_faction_color(self._selected_faction)
+
+        if y + sy(24) > max_y:
+            return
         surface.blit(font.render(iff_sym, True, iff_col), (x, y))
         surface.blit(
             font.render(mech.name.upper(), True, config.PHOSPHOR_GREEN),
@@ -791,10 +901,11 @@ class MechSelect(Screen):
         op_name = "—"
         if self._selected_pilot:
             op_name = self._selected_pilot.callsign
-        surface.blit(
-            small_font.render(f"  OP: {op_name}", True, config.PHOSPHOR_GREEN),
-            (x, y),
-        )
+        if y + sy(20) <= max_y:
+            surface.blit(
+                small_font.render(f"  OP: {op_name}", True, config.PHOSPHOR_GREEN),
+                (x, y),
+            )
         y += sy(20)
 
         for slot in ("weapon", "armor", "utility"):
@@ -804,14 +915,15 @@ class MechSelect(Screen):
                 eq = self._game_data.get_equipment(eq_id)
                 if eq:
                     eq_name = eq.name
-            surface.blit(
-                small_font.render(
-                    f"  {_SLOT_NAMES[slot]:<8s}: {eq_name}",
-                    True,
-                    config.PHOSPHOR_DIM,
-                ),
-                (x, y),
-            )
+            if y + sy(18) <= max_y:
+                surface.blit(
+                    small_font.render(
+                        f"  {_SLOT_NAMES[slot]:<8s}: {eq_name}",
+                        True,
+                        config.PHOSPHOR_DIM,
+                    ),
+                    (x, y),
+                )
             y += sy(18)
 
         y += sy(8)
@@ -843,17 +955,19 @@ class MechSelect(Screen):
         total_eva = mech.evasion + eq_eva
 
         hp_bar = ratio_bar(total_hp, total_hp, bar_width=16)
-        surface.blit(
-            small_font.render(f"  HP: {hp_bar}  {total_hp:03d}", True, config.PHOSPHOR_GREEN),
-            (x, y),
-        )
+        if y + sy(18) <= max_y:
+            surface.blit(
+                small_font.render(f"  HP: {hp_bar}  {total_hp:03d}", True, config.PHOSPHOR_GREEN),
+                (x, y),
+            )
         y += sy(18)
 
         ol_bar = ratio_bar(0, total_ol, bar_width=16)
-        surface.blit(
-            small_font.render(f"  OL: {ol_bar}  {total_ol:02d}", True, config.COLOR_WARNING),
-            (x, y),
-        )
+        if y + sy(18) <= max_y:
+            surface.blit(
+                small_font.render(f"  OL: {ol_bar}  {total_ol:02d}", True, config.COLOR_WARNING),
+                (x, y),
+            )
         y += sy(18)
 
         for line in [
@@ -862,10 +976,11 @@ class MechSelect(Screen):
             f"  OL-: -{eq_ol_disc}",
             f"  CARDS: {len(mech.starting_directives):02d}",
         ]:
-            surface.blit(small_font.render(line, True, config.PHOSPHOR_DIM), (x, y))
+            if y + sy(16) <= max_y:
+                surface.blit(small_font.render(line, True, config.PHOSPHOR_DIM), (x, y))
             y += sy(16)
 
-        if mech.trait and y < pp.rect.bottom - sy(20):
+        if mech.trait and y < max_y:
             trait_parts = mech.trait.split(":", 1)
             tag = trait_parts[0].strip().upper()
             desc = trait_parts[1].strip() if len(trait_parts) > 1 else mech.trait

@@ -316,6 +316,7 @@ def run_game(
                 )
                 game.replace_screen(ts)
             else:
+
                 def show_game_over() -> None:
                     go_screen = GameOverScreen(renderer, final_state, campaign.floors_cleared)
                     game.replace_screen(go_screen)
@@ -323,9 +324,7 @@ def run_game(
                     # Wire redeploy button — restart current floor
                     if isinstance(go_screen, GameOverScreen):
                         go_screen._btn_redeploy._on_click = (  # type: ignore[union-attr]
-                            lambda: _return_to_ship(ctx.get("mech"))
-                            if ctx.get("mech")
-                            else None
+                            lambda: _return_to_ship(ctx.get("mech")) if ctx.get("mech") else None
                         )
                         # Wire return button — go to main menu
                         go_screen._btn_return._on_click = _return_to_main  # type: ignore[union-attr]
