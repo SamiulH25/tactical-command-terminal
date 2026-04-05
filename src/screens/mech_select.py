@@ -271,11 +271,38 @@ class MechSelect(Screen):
             self._build_confirmation_content(cp, btn_x, y_start, btn_h)
 
     def _build_faction_content(self, cp: Panel, btn_x: int, y_start: int, btn_h: int) -> None:
-        """Show faction descriptions and unlock requirements."""
+        """Show faction descriptions — no redundant faction buttons since
+        the top bar already has faction selectors."""
         small_font = self._small_font
         if small_font is None:
             return
         logger.debug("Building faction content for step %d", self._step)
+
+        # Only show the currently selected faction's details — the top bar
+        # already provides faction switching, so duplicating all three factions
+        # here is redundant.
+        faction = self._selected_faction
+        unlocked = self._is_faction_unlocked(faction)
+        label = faction.name.replace("_", " ").upper()
+
+        if not unlocked:
+            needed = _FACTION_UNLOCK_FLOORS.get(faction, 0)
+            status_text = f"[LOCKED — Floor {needed:02d} Required]"
+        else:
+            status_text = "[SELECTED]"
+
+        # Faction header
+        self._step_buttons.append(
+            TerminalButton(
+                btn_x,
+                y_start,
+                sx(400),
+                btn_h,
+                label=f"> {label} {status_text}",
+                on_click=None,
+                enabled=False,
+            )
+        )
 
         faction_descs: dict[Faction, str] = {
             Faction.FSA: (
@@ -295,52 +322,25 @@ class MechSelect(Screen):
             ),
         }
 
-        y = y_start
+        y = y_start + btn_h + sy(8)
         max_y = cp.rect.bottom - sy(24)
-        for faction in Faction:
-            if y + btn_h > max_y:
-                logger.warning(
-                    "Faction content overflow at %s — y=%d exceeds max_y=%d",
-                    faction.name,
-                    y,
-                    max_y,
-                )
+        desc = faction_descs.get(faction, "")
+        for line in desc.split("\n"):
+            if y + sy(16) > max_y:
+                logger.warning("Faction desc overflow at y=%d, max_y=%d", y, max_y)
                 break
+            desc_surf = small_font.render(line, True, config.PHOSPHOR_DIM)
+            self.display.blit(desc_surf, (btn_x + sx(4), y))
+            y += sy(16)
 
-            unlocked = self._is_faction_unlocked(faction)
-            label = faction.name.replace("_", " ").upper()
-            if faction == self._selected_faction and unlocked:
-                label = f"> {label} [SELECTED]"
-            elif not unlocked:
-                needed = _FACTION_UNLOCK_FLOORS.get(faction, 0)
-                label = f"{label} [LOCKED — Floor {needed:02d} Required]"
-            elif faction == self._selected_faction:
-                label = f"> {label} [SELECTED]"
-            else:
-                label = f"{label} [SELECT]"
-
-            self._step_buttons.append(
-                TerminalButton(
-                    btn_x,
-                    y,
-                    sx(400),
-                    btn_h,
-                    label=label,
-                    on_click=lambda f=faction: self._select_faction(f),
-                    enabled=unlocked,
-                )
-            )
-
-            # Description below button — with bounds checking
-            desc = faction_descs.get(faction, "")
-            for line in desc.split("\n"):
-                if y + btn_h + sy(16) > max_y:
-                    break
-                desc_surf = small_font.render(line, True, config.PHOSPHOR_DIM)
-                self.display.blit(desc_surf, (btn_x + sx(4), y + btn_h + 2))
-                y += sy(16)
-
-            y += sy(12)
+        # Hint text
+        hint_surf = small_font.render(
+            "> Select a unit below to continue",
+            True,
+            config.PHOSPHOR_DIM,
+        )
+        if y + sy(20) <= max_y:
+            self.display.blit(hint_surf, (btn_x, y + sy(12)))
 
         logger.info(
             "Faction content complete — %d buttons, final y=%d, max_y=%d",
@@ -800,13 +800,17 @@ class MechSelect(Screen):
         surface.blit(step_surf, (sx(40), sy(66)))
         pygame.draw.line(surface, config.PHOSPHOR_GREEN, (sx(40), sy(96)), (w - sx(40), sy(96)))
 
-        # Faction buttons (always visible)
+        # Faction buttons (always visible) — positioned between header and panel
+        faction_btn_y = sy(104)
         for btn in self._faction_buttons:
+            # Shift buttons below the step header line
+            btn.rect.y = faction_btn_y
             btn.render(surface, font)
 
-        # Content panel
+        # Content panel — starts below faction buttons so titles don't overlap
         cp = self._content_panel
         assert cp is not None
+        cp.rect.y = sy(144)
         cp.render(surface, font, header_font)
 
         if self._step == 1:
@@ -875,7 +879,8 @@ class MechSelect(Screen):
         pp = self._preview_panel
         assert pp is not None
         x = pp.rect.left + sx(12)
-        y = pp.rect.top + sy(24)
+        # Extra padding below the "DEPLOYMENT SUMMARY" title
+        y = pp.rect.top + sy(36)
         max_y = pp.rect.bottom - sy(8)
 
         if self._selected_frame is None:
