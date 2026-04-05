@@ -693,59 +693,66 @@ class MechSelect(Screen):
 
     def _on_deploy(self) -> None:
         """Deploy selected mech and transition to ship menu."""
-        if self._selected_frame is not None and self.on_deploy is not None:
-            pilot_type = (
-                self._selected_pilot.operator_type if self._selected_pilot else "aggressive"
-            )
-            logger.info(
-                "Deploying — frame=%s, pilot=%s, equipment=%s",
-                self._selected_frame.id,
-                pilot_type,
-                self._equipment,
-            )
-            self.on_deploy(self._selected_frame, pilot_type, dict(self._equipment))
-        else:
-            logger.warning(
-                "Deploy attempted with frame=%s, on_deploy_cb=%s",
-                self._selected_frame,
-                self.on_deploy is not None,
-            )
+        try:
+            if self._selected_frame is not None and self.on_deploy is not None:
+                pilot_type = (
+                    self._selected_pilot.operator_type if self._selected_pilot else "aggressive"
+                )
+                logger.info(
+                    "Deploying — frame=%s, pilot=%s, equipment=%s",
+                    self._selected_frame.id,
+                    pilot_type,
+                    self._equipment,
+                )
+                self.on_deploy(self._selected_frame, pilot_type, dict(self._equipment))
+            else:
+                logger.warning(
+                    "Deploy attempted with frame=%s, on_deploy_cb=%s",
+                    self._selected_frame,
+                    self.on_deploy is not None,
+                )
+        except Exception:
+            logger.exception("Error during deploy callback")
+            # If deploy fails, stay on the confirmation screen
 
     # ------------------------------------------------------------------
     # Events
     # ------------------------------------------------------------------
 
     def handle_event(self, event: pygame.event.Event) -> None:
-        if event.type == pygame.MOUSEMOTION:
-            self._mouse_pos = event.pos
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self._mouse_pos = event.pos
-            for btn in self._step_buttons + self._nav_buttons + self._faction_buttons:
-                btn.set_hover(self._mouse_pos)
-                if btn.click():
-                    return
-        elif event.type == pygame.MOUSEWHEEL and self._step == 4:
-            if self._equip_open_slot:
-                self._equip_scroll[self._equip_open_slot] = max(
-                    0,
-                    self._equip_scroll[self._equip_open_slot] - event.y * 2,
-                )
-                self._build_step_buttons()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and self._step == 4:
+        try:
+            if event.type == pygame.MOUSEMOTION:
+                self._mouse_pos = event.pos
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                self._mouse_pos = event.pos
+                for btn in self._step_buttons + self._nav_buttons + self._faction_buttons:
+                    btn.set_hover(self._mouse_pos)
+                    if btn.click():
+                        return
+            elif event.type == pygame.MOUSEWHEEL and self._step == 4:
                 if self._equip_open_slot:
                     self._equip_scroll[self._equip_open_slot] = max(
                         0,
-                        self._equip_scroll[self._equip_open_slot] - 1,
+                        self._equip_scroll[self._equip_open_slot] - event.y * 2,
                     )
                     self._build_step_buttons()
-            elif event.key == pygame.K_DOWN and self._step == 4 and self._equip_open_slot:
-                self._equip_scroll[self._equip_open_slot] += 1
-                self._build_step_buttons()
-            elif event.key in (pygame.K_1, pygame.K_2, pygame.K_3):
-                idx = event.key - pygame.K_1
-                if idx < len(self._faction_buttons):
-                    self._faction_buttons[idx].click()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP and self._step == 4:
+                    if self._equip_open_slot:
+                        self._equip_scroll[self._equip_open_slot] = max(
+                            0,
+                            self._equip_scroll[self._equip_open_slot] - 1,
+                        )
+                        self._build_step_buttons()
+                elif event.key == pygame.K_DOWN and self._step == 4 and self._equip_open_slot:
+                    self._equip_scroll[self._equip_open_slot] += 1
+                    self._build_step_buttons()
+                elif event.key in (pygame.K_1, pygame.K_2, pygame.K_3):
+                    idx = event.key - pygame.K_1
+                    if idx < len(self._faction_buttons):
+                        self._faction_buttons[idx].click()
+        except Exception:
+            logger.exception("Error handling event in MechSelect")
 
     def update(self, dt: float) -> None:
         for btn in self._step_buttons + self._nav_buttons + self._faction_buttons:
@@ -875,19 +882,47 @@ class MechSelect(Screen):
         font: pygame.font.Font,
         small_font: pygame.font.Font,
     ) -> None:
-        """Render preview panel content with bounds checking."""
+        """Render preview panel content with bounds checking.
+
+        Text is clipped horizontally to stay within the panel width.
+        """
         pp = self._preview_panel
         assert pp is not None
-        x = pp.rect.left + sx(12)
+        # Horizontal margins
+        pad_x = sx(12)
+        max_text_w = pp.rect.width - pad_x * 2
+        x = pp.rect.left + pad_x
         # Extra padding below the "DEPLOYMENT SUMMARY" title
         y = pp.rect.top + sy(36)
         max_y = pp.rect.bottom - sy(8)
 
+        def _render_clipped(
+            text: str,
+            colour: tuple[int, int, int],
+            fnt: pygame.font.Font,
+        ) -> tuple[pygame.Surface, int]:
+            """Render *text* and return (surface, actual_width).
+
+            If the surface is wider than *max_text_w* it is scaled down
+            so it fits exactly within the panel.
+            """
+            surf = fnt.render(text, True, colour)
+            w = surf.get_width()
+            if w > max_text_w:
+                surf = pygame.transform.scale(surf, (max_text_w, surf.get_height()))
+            return surf, surf.get_width()
+
+        def _blit_clipped(
+            text: str,
+            colour: tuple[int, int, int],
+            fnt: pygame.font.Font,
+            pos_y: int,
+        ) -> None:
+            surf, _w = _render_clipped(text, colour, fnt)
+            surface.blit(surf, (x, pos_y))
+
         if self._selected_frame is None:
-            surface.blit(
-                small_font.render("  No unit selected", True, config.PHOSPHOR_DIM),
-                (x, y),
-            )
+            _blit_clipped("  No unit selected", config.PHOSPHOR_DIM, small_font, y)
             return
 
         mech = self._selected_frame
@@ -896,21 +931,18 @@ class MechSelect(Screen):
 
         if y + sy(24) > max_y:
             return
-        surface.blit(font.render(iff_sym, True, iff_col), (x, y))
-        surface.blit(
-            font.render(mech.name.upper(), True, config.PHOSPHOR_GREEN),
-            (x + sx(24), y),
-        )
+        # IFF symbol (keep full size)
+        iff_surf = font.render(iff_sym, True, iff_col)
+        surface.blit(iff_surf, (x, y))
+        # Mech name (clip if too wide)
+        _blit_clipped(f"  {mech.name.upper()}", config.PHOSPHOR_GREEN, font, y)
         y += sy(24)
 
         op_name = "—"
         if self._selected_pilot:
             op_name = self._selected_pilot.callsign
         if y + sy(20) <= max_y:
-            surface.blit(
-                small_font.render(f"  OP: {op_name}", True, config.PHOSPHOR_GREEN),
-                (x, y),
-            )
+            _blit_clipped(f"  OP: {op_name}", config.PHOSPHOR_GREEN, small_font, y)
         y += sy(20)
 
         for slot in ("weapon", "armor", "utility"):
@@ -921,13 +953,11 @@ class MechSelect(Screen):
                 if eq:
                     eq_name = eq.name
             if y + sy(18) <= max_y:
-                surface.blit(
-                    small_font.render(
-                        f"  {_SLOT_NAMES[slot]:<8s}: {eq_name}",
-                        True,
-                        config.PHOSPHOR_DIM,
-                    ),
-                    (x, y),
+                _blit_clipped(
+                    f"  {_SLOT_NAMES[slot]:>8s}: {eq_name}",
+                    config.PHOSPHOR_DIM,
+                    small_font,
+                    y,
                 )
             y += sy(18)
 
@@ -961,18 +991,12 @@ class MechSelect(Screen):
 
         hp_bar = ratio_bar(total_hp, total_hp, bar_width=16)
         if y + sy(18) <= max_y:
-            surface.blit(
-                small_font.render(f"  HP: {hp_bar}  {total_hp:03d}", True, config.PHOSPHOR_GREEN),
-                (x, y),
-            )
+            _blit_clipped(f"  HP: {hp_bar}  {total_hp:03d}", config.PHOSPHOR_GREEN, small_font, y)
         y += sy(18)
 
         ol_bar = ratio_bar(0, total_ol, bar_width=16)
         if y + sy(18) <= max_y:
-            surface.blit(
-                small_font.render(f"  OL: {ol_bar}  {total_ol:02d}", True, config.COLOR_WARNING),
-                (x, y),
-            )
+            _blit_clipped(f"  OL: {ol_bar}  {total_ol:02d}", config.COLOR_WARNING, small_font, y)
         y += sy(18)
 
         for line in [
@@ -982,14 +1006,11 @@ class MechSelect(Screen):
             f"  CARDS: {len(mech.starting_directives):02d}",
         ]:
             if y + sy(16) <= max_y:
-                surface.blit(small_font.render(line, True, config.PHOSPHOR_DIM), (x, y))
+                _blit_clipped(line, config.PHOSPHOR_DIM, small_font, y)
             y += sy(16)
 
         if mech.trait and y < max_y:
             trait_parts = mech.trait.split(":", 1)
             tag = trait_parts[0].strip().upper()
             desc = trait_parts[1].strip() if len(trait_parts) > 1 else mech.trait
-            surface.blit(
-                small_font.render(f"  [{tag}] {desc}", True, config.PHOSPHOR_DIM),
-                (x, y),
-            )
+            _blit_clipped(f"  [{tag}] {desc}", config.PHOSPHOR_DIM, small_font, y)
