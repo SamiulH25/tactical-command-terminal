@@ -92,7 +92,7 @@ class BootScreen(Screen):
         self._char_index: int = 0
         self._line_timer: float = 0.0
         self._total_elapsed: float = 0.0
-        self._type_speed: float = 0.04  # seconds per character
+        self._type_speed: float = 0.015  # seconds per character
         self._complete: bool = False
 
     def on_enter(self) -> None:
