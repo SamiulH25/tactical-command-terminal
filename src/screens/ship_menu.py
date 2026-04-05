@@ -337,7 +337,7 @@ class ShipMenu(Screen):
                 # Equipment summary
                 eq_offset = sy(94)
                 for slot_name in ("weapon", "armor", "utility"):
-                    eq_id = mech.equipment.get(slot_name)
+                    eq_id = mech.frame.equipment_slots.get(slot_name)
                     eq_label = eq_id.upper() if eq_id else "(none)"
                     surfaces.append(
                         (
