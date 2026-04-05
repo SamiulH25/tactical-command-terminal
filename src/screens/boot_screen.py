@@ -67,7 +67,7 @@ class BootScreen(Screen):
         ("", 200),
         ("> HELLO, COORDINATOR.", 800),
         ("", 300),
-        ("> SYSTEM BY BOB2142", 400),
+        ("> SYSTEM BY BOB2142", 2500),
     ]
 
     def __init__(
@@ -191,15 +191,24 @@ class BootScreen(Screen):
                 # Blinking cursor on current line
                 break
 
-        # Render lines
+        # Render lines — scroll if text exceeds available space
         line_height = font.get_height() + 8
-        start_y = sy(200)
+        start_y = sy(80)
+        max_text_y = sy(980)
 
         # Blinking cursor on the last line
         cursor_visible = int(self._total_elapsed * 3) % 2 == 0
 
+        # Scroll offset: push earlier lines off the top once we run out of room
+        total_lines = len(visible_lines)
+        max_visible_lines = (max_text_y - start_y) // line_height
+        scroll_offset = max(0, total_lines - max_visible_lines)
+
         for i, line in enumerate(visible_lines):
-            y = start_y + i * line_height
+            adjusted_index = i - scroll_offset
+            if adjusted_index < 0:
+                continue
+            y = start_y + adjusted_index * line_height
 
             if i == len(visible_lines) - 1 and self._line_index < len(self.BOOT_LINES):
                 # Current line — use typing color
