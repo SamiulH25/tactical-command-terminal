@@ -33,6 +33,7 @@ class MainMenu(Screen):
         self._small_font: pygame.font.Font | None = None
         self._mouse_pos: tuple[int, int] | None = None
         self._main_panel: Panel | None = None
+        self._status_panel: Panel | None = None
         self._buttons: list[TerminalButton] = []
         self._cursor_visible: bool = True
         self._cursor_timer: float = 0.0
@@ -63,6 +64,13 @@ class MainMenu(Screen):
         px = sx(30)
         py = sy(70)
         self._main_panel = Panel(px, py, pw, ph)
+
+        # Session Status — right side, above war comms
+        spx = sx(1190)
+        spy = sy(70)
+        spw = sx(700)
+        sph = sy(340)
+        self._status_panel = Panel(spx, spy, spw, sph, "SESSION STATUS")
 
         # Buttons — centered in main panel
         bw = sx(460)
@@ -209,9 +217,29 @@ class MainMenu(Screen):
         auth_surf = font.render("[AUTHORIZED PERSONNEL ONLY]", True, config.PHOSPHOR_DIM)
         surface.blit(auth_surf, ((w - auth_surf.get_width()) // 2, h - sy(35)))
 
-        # War effort comms — right column, below bezel to footer
+        # Session Status panel
+        assert self._status_panel is not None
+        self._status_panel.render(surface, font, header_font)
+        sp = self._status_panel.rect
+
+        status_data = [
+            ("UNITS: ", "01 / 05", config.PHOSPHOR_GREEN),
+            ("DEEPEST: ", "--", config.PHOSPHOR_DIM),
+            ("STATUS: ", "[STANDBY]", config.PHOSPHOR_GREEN),
+            ("LINK: ", "SECURE", config.PHOSPHOR_GREEN),
+        ]
+        sy_pos = sp.top + sy(30)
+        sx_pos = sp.left + sx(14)
+        for label, value, colour in status_data:
+            label_surf = small_font.render(label, True, config.PHOSPHOR_DIM)
+            value_surf = small_font.render(value, True, colour)
+            surface.blit(label_surf, (sx_pos, sy_pos))
+            surface.blit(value_surf, (sx_pos + label_surf.get_width(), sy_pos))
+            sy_pos += label_surf.get_height() + sy(8)
+
+        # War effort comms — below status panel
         comms_w = sx(700)
-        comms_h = h - sy(100)
+        comms_h = sy(400)
         comms_x = sx(1190)
-        comms_y = sy(70)
+        comms_y = sp.bottom + sy(20)
         self._war_comms.render(surface, comms_x, comms_y, comms_w, comms_h)
