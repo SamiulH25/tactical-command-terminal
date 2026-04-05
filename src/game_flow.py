@@ -24,7 +24,12 @@ import pygame
 from src.core.audio import SoundManager
 from src.core.monitor_frame import MonitorFrame
 from src.core.terminal import TerminalRenderer
-from src.core.transitions import make_deployment, make_signal_acquire, make_signal_lost
+from src.core.transitions import (
+    make_brief,
+    make_deployment,
+    make_signal_acquire,
+    make_signal_lost,
+)
 from src.game import Game
 from src.models.campaign import Campaign
 from src.models.data_loader import load_all_data
@@ -34,6 +39,7 @@ from src.models.mech import MechFrame
 from src.screens.boot_screen import BootScreen
 from src.screens.combat import CombatScreen
 from src.screens.event_screen import EventScreen
+from src.screens.floor_select import FloorSelectionScreen
 from src.screens.game_over import GameOverScreen
 from src.screens.main_menu import MainMenu
 from src.screens.mech_select import MechSelect
@@ -126,15 +132,24 @@ def run_game(
     # --- Screen transition helpers ---
 
     def go_to_mech_select() -> None:
-        """Transition from MainMenu to MechSelect."""
-        game.replace_screen(
-            MechSelect(
-                renderer,
-                game_data,
-                campaign,
-                on_deploy=_on_deploy,
+        """Transition from MainMenu to MechSelect with phosphor flicker."""
+
+        def show_mech_select() -> None:
+            game.replace_screen(
+                MechSelect(
+                    renderer,
+                    game_data,
+                    campaign,
+                    on_deploy=_on_deploy,
+                )
             )
+
+        ts = TransitionScreen(
+            renderer,
+            make_signal_acquire(),
+            on_complete=show_mech_select,
         )
+        game.replace_screen(ts)
 
     def _on_deploy(
         frame: MechFrame,
@@ -189,41 +204,63 @@ def run_game(
                 heal = mech.heal(5)
                 campaign.current_credits += 10
                 logger.info("Rest: healed %d HP", heal)
-                # Return to ShipMenu after rest
-                ship = ShipMenu(
-                    renderer,
-                    campaign,
-                    mech=mech,
-                    on_assault=lambda: go_to_floor_select(),
-                    on_salvage=lambda: go_to_floor_select(),
-                    on_rest=lambda: go_to_floor_select(),
-                )
-                game.replace_screen(ship)
+                _return_to_ship(mech)
             elif encounter.encounter_type == EncounterType.MERCHANT:
                 logger.info("Merchant encounter (placeholder)")
-                # Return to ShipMenu
-                ship = ShipMenu(
-                    renderer,
-                    campaign,
-                    mech=mech,
-                    on_assault=lambda: go_to_floor_select(),
-                    on_salvage=lambda: go_to_floor_select(),
-                    on_rest=lambda: go_to_floor_select(),
-                )
-                game.replace_screen(ship)
+                _return_to_ship(mech)
             elif encounter.encounter_type == EncounterType.EVENT:
                 _show_event(encounter, mech, progression)
 
-        from src.screens.floor_select import FloorSelectionScreen
+        def show_floor_select() -> None:
+            game.replace_screen(
+                FloorSelectionScreen(
+                    renderer,
+                    campaign,
+                    progression,
+                    on_select=on_encounter_select,
+                )
+            )
 
-        game.replace_screen(
-            FloorSelectionScreen(
+        ts = TransitionScreen(
+            renderer,
+            make_brief(),
+            on_complete=show_floor_select,
+        )
+        game.replace_screen(ts)
+
+    def _return_to_main() -> None:
+        """Transition back to the main menu with signal acquire."""
+
+        def show_main() -> None:
+            game.replace_screen(main_menu)
+
+        ts = TransitionScreen(
+            renderer,
+            make_signal_lost(victory=False),
+            on_complete=show_main,
+        )
+        game.replace_screen(ts)
+
+    def _return_to_ship(mech) -> None:  # type: ignore[no-untyped-def]
+        """Transition back to ShipMenu with a brief phosphor flicker."""
+
+        def show_ship() -> None:
+            ship = ShipMenu(
                 renderer,
                 campaign,
-                progression,
-                on_select=on_encounter_select,
+                mech=mech,
+                on_assault=lambda: go_to_floor_select(),
+                on_salvage=lambda: go_to_floor_select(),
+                on_rest=lambda: go_to_floor_select(),
             )
+            game.replace_screen(ship)
+
+        ts = TransitionScreen(
+            renderer,
+            make_brief(),
+            on_complete=show_ship,
         )
+        game.replace_screen(ts)
 
     def _start_combat(mech, progression, encounter=None):  # type: ignore[no-untyped-def]
         """Start a combat encounter using mission system data.
@@ -263,16 +300,9 @@ def run_game(
                     def after_victory() -> None:
                         with suppress(ValueError):
                             progression.advance()
-                        # Return to ShipMenu after victory, not directly to floor select
-                        ship = ShipMenu(
-                            renderer,
-                            campaign,
-                            mech=mech,
-                            on_assault=lambda: go_to_floor_select(),
-                            on_salvage=lambda: go_to_floor_select(),
-                            on_rest=lambda: go_to_floor_select(),
-                        )
-                        game.replace_screen(ship)
+                        mech = ctx.get("mech")
+                        if mech is not None:
+                            _return_to_ship(mech)
 
                     # Wire the victory button to continue the loop
                     vs = game.current_screen
@@ -286,7 +316,26 @@ def run_game(
                 )
                 game.replace_screen(ts)
             else:
-                game.replace_screen(GameOverScreen(renderer, final_state, campaign.floors_cleared))
+                def show_game_over() -> None:
+                    go_screen = GameOverScreen(renderer, final_state, campaign.floors_cleared)
+                    game.replace_screen(go_screen)
+
+                    # Wire redeploy button — restart current floor
+                    if isinstance(go_screen, GameOverScreen):
+                        go_screen._btn_redeploy._on_click = (  # type: ignore[union-attr]
+                            lambda: _return_to_ship(ctx.get("mech"))
+                            if ctx.get("mech")
+                            else None
+                        )
+                        # Wire return button — go to main menu
+                        go_screen._btn_return._on_click = _return_to_main  # type: ignore[union-attr]
+
+                ts = TransitionScreen(
+                    renderer,
+                    make_signal_lost(victory=False),
+                    on_complete=show_game_over,
+                )
+                game.replace_screen(ts)
 
         game.replace_screen(
             CombatScreen(
@@ -335,16 +384,7 @@ def run_game(
 
         def on_event_complete(outcome) -> None:  # type: ignore[no-untyped-def]
             campaign.current_credits += outcome.credits_delta
-            # Return to ShipMenu after event
-            ship = ShipMenu(
-                renderer,
-                campaign,
-                mech=mech,
-                on_assault=lambda: go_to_floor_select(),
-                on_salvage=lambda: go_to_floor_select(),
-                on_rest=lambda: go_to_floor_select(),
-            )
-            game.replace_screen(ship)
+            _return_to_ship(mech)
 
         game.replace_screen(
             EventScreen(renderer, campaign, event, narrative_engine, on_event_complete)
@@ -398,14 +438,20 @@ def run_game(
             logger.info("Save not implemented")
 
         def do_return_to_base() -> None:
-            """Return to the main menu / ship menu depending on context."""
-            # Pop pause screen first
+            """Return to the main menu with signal lost transition."""
             game.pop_screen()
-            # If we're on ShipMenu or similar, go back to main menu
             if isinstance(current, CombatScreen):
                 return
-            # Reset to main menu
-            game.replace_screen(main_menu)
+
+            def show_main() -> None:
+                game.replace_screen(main_menu)
+
+            ts = TransitionScreen(
+                renderer,
+                make_signal_lost(victory=False),
+                on_complete=show_main,
+            )
+            game.replace_screen(ts)
 
         pause = PauseScreen(
             renderer,
