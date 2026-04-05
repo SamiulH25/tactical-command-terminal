@@ -1,0 +1,15 @@
+[
+  {
+    "id": "patch_up",
+    "name": "Patch Up",
+    "directive_type": "REPAIR",
+    "damage": 0,
+    "heal": 5,
+    "overload_cost": 2,
+    "range_": 0,
+    "move_range": 0,
+    "pattern": "SELF",
+    "keywords": ["repair"],
+    "description": "Emergency field repairs. Restore 5 HP."
+  }
+]

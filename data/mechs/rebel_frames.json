@@ -1,0 +1,74 @@
+[
+  {
+    "id": "rebel_ghost",
+    "name": "Rebel Ghost",
+    "faction": "REBEL",
+    "hp": 16,
+    "overload": 6,
+    "evasion": 15,
+    "iff_shape": "CHEVRON",
+    "role": "scout",
+    "trait": "Scavenger: Gains +1 damage for every 3 floors cleared",
+    "starting_directives": [
+      "rifle_fire",
+      "rifle_fire",
+      "dash",
+      "flank",
+      "patch_up",
+      "scan"
+    ],
+    "equipment_slots": {
+      "weapon": "rifle_mk1",
+      "armor": "reinforced_joints",
+      "utility": null
+    }
+  },
+  {
+    "id": "rebel_rustbucket",
+    "name": "Rebel Rustbucket",
+    "faction": "REBEL",
+    "hp": 22,
+    "overload": 10,
+    "evasion": 0,
+    "iff_shape": "HEXAGON",
+    "role": "heavy",
+    "trait": "Jury-Rigged: 10% chance for directives to not cost OL",
+    "starting_directives": [
+      "autocannon_burst",
+      "rifle_fire",
+      "rifle_fire",
+      "advance",
+      "patch_up",
+      "fortify"
+    ],
+    "equipment_slots": {
+      "weapon": "autocannon_mk1",
+      "armor": "light_plating",
+      "utility": null
+    }
+  },
+  {
+    "id": "rebel_warlord",
+    "name": "Rebel Warlord",
+    "faction": "REBEL",
+    "hp": 26,
+    "overload": 10,
+    "evasion": 5,
+    "iff_shape": "CIRCLE_CROSS",
+    "role": "defender",
+    "trait": "Warband Leader: Summons 1 Reinforcement on floor 15+",
+    "starting_directives": [
+      "rifle_fire",
+      "rifle_fire",
+      "hold_position",
+      "hold_position",
+      "guard",
+      "overwatch"
+    ],
+    "equipment_slots": {
+      "weapon": "rifle_mk1",
+      "armor": "medium_plating",
+      "utility": null
+    }
+  }
+]

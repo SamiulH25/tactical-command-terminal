@@ -1,0 +1,67 @@
+[
+  {
+    "id": "autocannon_burst",
+    "name": "Autocannon Burst",
+    "directive_type": "COMBAT",
+    "damage": 6,
+    "heal": 0,
+    "overload_cost": 2,
+    "range_": 4,
+    "move_range": 0,
+    "pattern": "SINGLE",
+    "keywords": ["kinetic"],
+    "description": "Fire a burst of autocannon rounds at a single target."
+  },
+  {
+    "id": "rifle_fire",
+    "name": "Rifle Fire",
+    "directive_type": "COMBAT",
+    "damage": 4,
+    "heal": 0,
+    "overload_cost": 1,
+    "range_": 3,
+    "move_range": 0,
+    "pattern": "SINGLE",
+    "keywords": ["kinetic"],
+    "description": "Standard rifle engagement. Low cost, reliable damage."
+  },
+  {
+    "id": "heavy_cannon",
+    "name": "Heavy Cannon",
+    "directive_type": "COMBAT",
+    "damage": 8,
+    "heal": 0,
+    "overload_cost": 3,
+    "range_": 3,
+    "move_range": 0,
+    "pattern": "SINGLE",
+    "keywords": ["kinetic", "heavy"],
+    "description": "Unleash a devastating heavy cannon shot."
+  },
+  {
+    "id": "sniper_shot",
+    "name": "Sniper Shot",
+    "directive_type": "COMBAT",
+    "damage": 10,
+    "heal": 0,
+    "overload_cost": 3,
+    "range_": 6,
+    "move_range": 0,
+    "pattern": "SINGLE",
+    "keywords": ["kinetic", "precision"],
+    "description": "Precision shot at extreme range. High damage, high cost."
+  },
+  {
+    "id": "suppressing_fire",
+    "name": "Suppressing Fire",
+    "directive_type": "COMBAT",
+    "damage": 3,
+    "heal": 0,
+    "overload_cost": 2,
+    "range_": 3,
+    "move_range": 0,
+    "pattern": "LINE",
+    "keywords": ["kinetic", "suppress"],
+    "description": "Lay down fire along a line. Hits all targets in path."
+  }
+]

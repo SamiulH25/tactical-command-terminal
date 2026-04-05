@@ -1,0 +1,54 @@
+[
+  {
+    "id": "advance",
+    "name": "Advance",
+    "directive_type": "MOVEMENT",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 1,
+    "range_": 0,
+    "move_range": 3,
+    "pattern": "NONE",
+    "keywords": ["mobility"],
+    "description": "Move up to 3 cells forward."
+  },
+  {
+    "id": "dash",
+    "name": "Dash",
+    "directive_type": "MOVEMENT",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 1,
+    "range_": 0,
+    "move_range": 4,
+    "pattern": "NONE",
+    "keywords": ["mobility"],
+    "description": "Sprint up to 4 cells. Use with caution."
+  },
+  {
+    "id": "flank",
+    "name": "Flanking Maneuver",
+    "directive_type": "MOVEMENT",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 2,
+    "range_": 0,
+    "move_range": 3,
+    "pattern": "NONE",
+    "keywords": ["mobility", "flank"],
+    "description": "Reposition to the side. Next attack deals +2 damage."
+  },
+  {
+    "id": "hold_position",
+    "name": "Hold Position",
+    "directive_type": "MOVEMENT",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 0,
+    "range_": 0,
+    "move_range": 0,
+    "pattern": "NONE",
+    "keywords": ["stance"],
+    "description": "Maintain current position. Gain +1 OL next turn."
+  }
+]

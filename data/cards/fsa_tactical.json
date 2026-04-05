@@ -1,0 +1,54 @@
+[
+  {
+    "id": "missile_salvo",
+    "name": "Missile Salvo",
+    "directive_type": "COMBAT",
+    "damage": 5,
+    "heal": 0,
+    "overload_cost": 3,
+    "range_": 5,
+    "move_range": 0,
+    "pattern": "AREA",
+    "keywords": ["kinetic", "explosive", "fsa"],
+    "description": "Launch a volley of guided missiles. Damages all targets in a 3x3 area."
+  },
+  {
+    "id": "orbital_strike",
+    "name": "Orbital Strike",
+    "directive_type": "COMBAT",
+    "damage": 12,
+    "heal": 0,
+    "overload_cost": 5,
+    "range_": 7,
+    "move_range": 0,
+    "pattern": "SINGLE",
+    "keywords": ["kinetic", "orbital", "fsa", "heavy"],
+    "description": "Request precision orbital bombardment. Devastating single-target strike at extreme range."
+  },
+  {
+    "id": "shield_wall",
+    "name": "Shield Wall",
+    "directive_type": "UTILITY",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 2,
+    "range_": 0,
+    "move_range": 0,
+    "pattern": "SELF",
+    "keywords": ["defensive", "fsa"],
+    "description": "Activate forward shields. Reduces incoming damage by 3 for one turn."
+  },
+  {
+    "id": "retreat",
+    "name": "Tactical Retreat",
+    "directive_type": "MOVEMENT",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 1,
+    "range_": 0,
+    "move_range": 4,
+    "pattern": "SELF",
+    "keywords": ["movement", "fsa"],
+    "description": "Disengage and reposition. Move up to 4 cells away from hostiles."
+  }
+]

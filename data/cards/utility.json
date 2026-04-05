@@ -1,0 +1,80 @@
+[
+  {
+    "id": "overwatch",
+    "name": "Overwatch Protocol",
+    "directive_type": "UTILITY",
+    "damage": 3,
+    "heal": 0,
+    "overload_cost": 2,
+    "range_": 4,
+    "move_range": 0,
+    "pattern": "SINGLE",
+    "keywords": ["reaction"],
+    "description": "Fire on any target that moves within range next turn."
+  },
+  {
+    "id": "guard",
+    "name": "Guard",
+    "directive_type": "UTILITY",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 1,
+    "range_": 0,
+    "move_range": 0,
+    "pattern": "SELF",
+    "keywords": ["defensive"],
+    "description": "Take a defensive stance. Adjacent friendlies take 1 less damage."
+  },
+  {
+    "id": "fortify",
+    "name": "Fortify",
+    "directive_type": "UTILITY",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 1,
+    "range_": 0,
+    "move_range": 0,
+    "pattern": "SELF",
+    "keywords": ["defensive"],
+    "description": "Reinforce position. Gain +3 HP until end of combat."
+  },
+  {
+    "id": "scan",
+    "name": "Scan",
+    "directive_type": "UTILITY",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 1,
+    "range_": 5,
+    "move_range": 0,
+    "pattern": "SINGLE",
+    "keywords": ["intel"],
+    "description": "Scan enemy telemetry. Reveals target HP and directives."
+  },
+  {
+    "id": "cloak",
+    "name": "Cloak",
+    "directive_type": "UTILITY",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 2,
+    "range_": 0,
+    "move_range": 0,
+    "pattern": "SELF",
+    "keywords": ["stealth"],
+    "description": "Activate optical camouflage. Cannot be targeted next enemy turn."
+  },
+  {
+    "id": "evasive_maneuvers",
+    "name": "Evasive Maneuvers",
+    "directive_type": "UTILITY",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 1,
+    "range_": 0,
+    "move_range": 2,
+    "pattern": "NONE",
+    "keywords": ["mobility", "evasion"],
+    "description": "Move 2 cells and gain +10 evasion until next turn."
+  }
+]

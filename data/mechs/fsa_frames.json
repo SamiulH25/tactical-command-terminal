@@ -1,0 +1,132 @@
+[
+  {
+    "id": "fsa_bastion",
+    "name": "Bastion",
+    "faction": "FSA",
+    "hp": 30,
+    "overload": 12,
+    "evasion": 0,
+    "iff_shape": "SQUARE",
+    "role": "tank",
+    "trait": "Heavy Plating: Take 25% less damage from all attacks",
+    "starting_directives": [
+      "autocannon_burst",
+      "autocannon_burst",
+      "rifle_fire",
+      "rifle_fire",
+      "advance",
+      "hold_position",
+      "patch_up",
+      "overwatch"
+    ],
+    "equipment_slots": {
+      "weapon": "autocannon_mk1",
+      "armor": "light_plating",
+      "utility": "field_medic"
+    }
+  },
+  {
+    "id": "fsa_raptor",
+    "name": "Raptor",
+    "faction": "FSA",
+    "hp": 20,
+    "overload": 8,
+    "evasion": 10,
+    "iff_shape": "DIAMOND",
+    "role": "scout",
+    "trait": "Light Frame: +2 movement range on all mobility directives",
+    "starting_directives": [
+      "rifle_fire",
+      "rifle_fire",
+      "rifle_fire",
+      "dash",
+      "dash",
+      "flank",
+      "evasive_maneuvers",
+      "scan"
+    ],
+    "equipment_slots": {
+      "weapon": "rifle_mk1",
+      "armor": "reinforced_joints",
+      "utility": "sensor_array"
+    }
+  },
+  {
+    "id": "fsa_anvil",
+    "name": "Anvil",
+    "faction": "FSA",
+    "hp": 35,
+    "overload": 14,
+    "evasion": 0,
+    "iff_shape": "HEXAGON",
+    "role": "heavy",
+    "trait": "Breakthrough: +2 damage against targets with cover",
+    "starting_directives": [
+      "heavy_cannon",
+      "heavy_cannon",
+      "autocannon_burst",
+      "rifle_fire",
+      "advance",
+      "suppressing_fire",
+      "patch_up",
+      "fortify"
+    ],
+    "equipment_slots": {
+      "weapon": "heavy_cannon_mk1",
+      "armor": "heavy_plating",
+      "utility": "ammo_feeder"
+    }
+  },
+  {
+    "id": "fsa_warden",
+    "name": "Warden",
+    "faction": "FSA",
+    "hp": 25,
+    "overload": 10,
+    "evasion": 5,
+    "iff_shape": "CIRCLE_CROSS",
+    "role": "defender",
+    "trait": "Guardian Protocol: Adjacent friendlies take 1 less damage",
+    "starting_directives": [
+      "rifle_fire",
+      "rifle_fire",
+      "hold_position",
+      "hold_position",
+      "patch_up",
+      "patch_up",
+      "guard",
+      "overwatch"
+    ],
+    "equipment_slots": {
+      "weapon": "rifle_mk1",
+      "armor": "medium_plating",
+      "utility": "shield_generator"
+    }
+  },
+  {
+    "id": "fsa_wraith",
+    "name": "Wraith",
+    "faction": "FSA",
+    "hp": 18,
+    "overload": 8,
+    "evasion": 20,
+    "iff_shape": "CHEVRON",
+    "role": "stealth",
+    "trait": "Ghost Protocol: 30% chance to ignore targeting penalties",
+    "starting_directives": [
+      "rifle_fire",
+      "rifle_fire",
+      "sniper_shot",
+      "dash",
+      "cloak",
+      "flank",
+      "evasive_maneuvers",
+      "scan"
+    ],
+    "equipment_slots": {
+      "weapon": "precision_rifle",
+      "armor": "stealth_coating",
+      "utility": "optical_camouflage"
+    }
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "cc_bastion",
+    "name": "CC Bastion",
+    "faction": "CRIMSON_COMPACT",
+    "hp": 28,
+    "overload": 10,
+    "evasion": 0,
+    "iff_shape": "SQUARE",
+    "role": "tank",
+    "trait": "Fortified Hull: -20% incoming damage",
+    "starting_directives": [
+      "autocannon_burst",
+      "rifle_fire",
+      "rifle_fire",
+      "hold_position",
+      "hold_position",
+      "patch_up"
+    ],
+    "equipment_slots": {
+      "weapon": "autocannon_mk1",
+      "armor": "medium_plating",
+      "utility": null
+    }
+  },
+  {
+    "id": "cc_sentinel",
+    "name": "CC Sentinel",
+    "faction": "CRIMSON_COMPACT",
+    "hp": 20,
+    "overload": 8,
+    "evasion": 5,
+    "iff_shape": "TRIANGLE",
+    "role": "scout",
+    "trait": "Perimeter Watch: +1 range on all attacks",
+    "starting_directives": [
+      "rifle_fire",
+      "rifle_fire",
+      "rifle_fire",
+      "dash",
+      "scan",
+      "overwatch"
+    ],
+    "equipment_slots": {
+      "weapon": "rifle_mk1",
+      "armor": "reinforced_joints",
+      "utility": "sensor_array"
+    }
+  },
+  {
+    "id": "cc_siege",
+    "name": "CC Siege",
+    "faction": "CRIMSON_COMPACT",
+    "hp": 32,
+    "overload": 12,
+    "evasion": 0,
+    "iff_shape": "RECTANGLE",
+    "role": "heavy",
+    "trait": "Bombardment: Attacks hit in a line pattern",
+    "starting_directives": [
+      "heavy_cannon",
+      "autocannon_burst",
+      "rifle_fire",
+      "hold_position",
+      "suppressing_fire",
+      "fortify"
+    ],
+    "equipment_slots": {
+      "weapon": "heavy_cannon_mk1",
+      "armor": "heavy_plating",
+      "utility": "ammo_feeder"
+    }
+  },
+  {
+    "id": "cc_warden",
+    "name": "CC Warden",
+    "faction": "CRIMSON_COMPACT",
+    "hp": 24,
+    "overload": 10,
+    "evasion": 5,
+    "iff_shape": "CIRCLE",
+    "role": "defender",
+    "trait": "Defensive Line: Guards adjacent hostiles",
+    "starting_directives": [
+      "rifle_fire",
+      "rifle_fire",
+      "hold_position",
+      "patch_up",
+      "guard",
+      "overwatch"
+    ],
+    "equipment_slots": {
+      "weapon": "rifle_mk1",
+      "armor": "medium_plating",
+      "utility": "shield_generator"
+    }
+  }
+]

@@ -1,0 +1,49 @@
+{
+  "operator_types": {
+    "aggressive": {
+      "callsign": "Aggressive Pilot",
+      "operator_type": "aggressive",
+      "damage_bonus": 2,
+      "hp_bonus": 0,
+      "ol_bonus": 0,
+      "evasion_bonus": 0,
+      "starting_directives": ["suppressing_fire"]
+    },
+    "defensive": {
+      "callsign": "Defensive Pilot",
+      "operator_type": "defensive",
+      "damage_bonus": 0,
+      "hp_bonus": 5,
+      "ol_bonus": 2,
+      "evasion_bonus": 0,
+      "starting_directives": ["fortify"]
+    },
+    "tactical": {
+      "callsign": "Tactical Pilot",
+      "operator_type": "tactical",
+      "damage_bonus": 0,
+      "hp_bonus": 0,
+      "ol_bonus": 4,
+      "evasion_bonus": 5,
+      "starting_directives": ["overwatch"]
+    },
+    "scout": {
+      "callsign": "Scout Pilot",
+      "operator_type": "scout",
+      "damage_bonus": 1,
+      "hp_bonus": 0,
+      "ol_bonus": 0,
+      "evasion_bonus": 10,
+      "starting_directives": ["scan"]
+    },
+    "engineer": {
+      "callsign": "Engineer Pilot",
+      "operator_type": "engineer",
+      "damage_bonus": 0,
+      "hp_bonus": 3,
+      "ol_bonus": 0,
+      "evasion_bonus": 0,
+      "starting_directives": ["patch_up"]
+    }
+  }
+}

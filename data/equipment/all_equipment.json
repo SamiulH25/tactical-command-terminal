@@ -1,0 +1,156 @@
+[
+  {
+    "id": "autocannon_mk1",
+    "name": "Autocannon Mk.1",
+    "slot": "weapon",
+    "damage_bonus": 3,
+    "hp_bonus": 0,
+    "evasion_bonus": 0,
+    "ol_discount": 0,
+    "directives_granted": [],
+    "description": "Standard FSA autocannon. Reliable kinetic firepower."
+  },
+  {
+    "id": "rifle_mk1",
+    "name": "Rifle Mk.1",
+    "slot": "weapon",
+    "damage_bonus": 1,
+    "hp_bonus": 0,
+    "evasion_bonus": 0,
+    "ol_discount": 0,
+    "directives_granted": [],
+    "description": "Standard ballistic rifle. Light and versatile."
+  },
+  {
+    "id": "heavy_cannon_mk1",
+    "name": "Heavy Cannon Mk.1",
+    "slot": "weapon",
+    "damage_bonus": 5,
+    "hp_bonus": -3,
+    "evasion_bonus": 0,
+    "ol_discount": 0,
+    "directives_granted": [],
+    "description": "High-calibre cannon. Devastating but adds weight."
+  },
+  {
+    "id": "precision_rifle",
+    "name": "Precision Rifle",
+    "slot": "weapon",
+    "damage_bonus": 2,
+    "hp_bonus": 0,
+    "evasion_bonus": 0,
+    "ol_discount": 1,
+    "directives_granted": [],
+    "description": "Scoped rifle with reduced recoil. Efficient targeting."
+  },
+  {
+    "id": "light_plating",
+    "name": "Light Plating",
+    "slot": "armor",
+    "damage_bonus": 0,
+    "hp_bonus": 5,
+    "evasion_bonus": 0,
+    "ol_discount": 0,
+    "directives_granted": [],
+    "description": "Basic ablative armour. Adds modest protection."
+  },
+  {
+    "id": "medium_plating",
+    "name": "Medium Plating",
+    "slot": "armor",
+    "damage_bonus": 0,
+    "hp_bonus": 8,
+    "evasion_bonus": 0,
+    "ol_discount": 0,
+    "directives_granted": [],
+    "description": "Balanced armour layer. Good all-round protection."
+  },
+  {
+    "id": "heavy_plating",
+    "name": "Heavy Plating",
+    "slot": "armor",
+    "damage_bonus": 0,
+    "hp_bonus": 12,
+    "evasion_bonus": -5,
+    "ol_discount": 0,
+    "directives_granted": [],
+    "description": "Thick reactive armour. Maximum protection, reduced mobility."
+  },
+  {
+    "id": "reinforced_joints",
+    "name": "Reinforced Joints",
+    "slot": "armor",
+    "damage_bonus": 0,
+    "hp_bonus": 3,
+    "evasion_bonus": 5,
+    "ol_discount": 0,
+    "directives_granted": [],
+    "description": "Strengthened joint actuators. Improves agility."
+  },
+  {
+    "id": "stealth_coating",
+    "name": "Stealth Coating",
+    "slot": "armor",
+    "damage_bonus": 0,
+    "hp_bonus": -2,
+    "evasion_bonus": 10,
+    "ol_discount": 0,
+    "directives_granted": [],
+    "description": "Radar-absorbent coating. Harder to target."
+  },
+  {
+    "id": "field_medic",
+    "name": "Field Medic Kit",
+    "slot": "utility",
+    "damage_bonus": 0,
+    "hp_bonus": 0,
+    "evasion_bonus": 0,
+    "ol_discount": 0,
+    "directives_granted": ["patch_up"],
+    "description": "Emergency repair tools. Grants additional Patch Up directive."
+  },
+  {
+    "id": "sensor_array",
+    "name": "Sensor Array",
+    "slot": "utility",
+    "damage_bonus": 0,
+    "hp_bonus": 0,
+    "evasion_bonus": 0,
+    "ol_discount": 0,
+    "directives_granted": ["scan"],
+    "description": "Extended telemetry sensors. Reveals enemy positions."
+  },
+  {
+    "id": "ammo_feeder",
+    "name": "Ammo Feeder",
+    "slot": "utility",
+    "damage_bonus": 0,
+    "hp_bonus": 0,
+    "evasion_bonus": 0,
+    "ol_discount": 1,
+    "directives_granted": [],
+    "description": "Automated ammunition feed system. Reduces OL cost."
+  },
+  {
+    "id": "shield_generator",
+    "name": "Shield Generator",
+    "slot": "utility",
+    "damage_bonus": 0,
+    "hp_bonus": 3,
+    "evasion_bonus": 0,
+    "ol_discount": 0,
+    "directives_granted": ["guard"],
+    "description": "Experimental energy shield. Grants Guard directive."
+  },
+  {
+    "id": "optical_camouflage",
+    "name": "Optical Camouflage",
+    "slot": "utility",
+    "damage_bonus": 0,
+    "hp_bonus": 0,
+    "evasion_bonus": 5,
+    "ol_discount": 0,
+    "directives_granted": ["cloak"],
+    "description": "Visual distortion field. Grants Cloak directive."
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "barrage",
+    "name": "Artillery Barrage",
+    "directive_type": "COMBAT",
+    "damage": 4,
+    "heal": 0,
+    "overload_cost": 3,
+    "range_": 5,
+    "move_range": 0,
+    "pattern": "LINE",
+    "keywords": ["kinetic", "explosive", "cc"],
+    "description": "Call in sustained artillery fire along a line. Hits every target in path."
+  },
+  {
+    "id": "entrench",
+    "name": "Entrench",
+    "directive_type": "UTILITY",
+    "damage": 0,
+    "heal": 3,
+    "overload_cost": 2,
+    "range_": 0,
+    "move_range": 0,
+    "pattern": "SELF",
+    "keywords": ["defensive", "cc", "fortify"],
+    "description": "Dig in and reinforce position. Heal 3 HP and gain cover until next turn."
+  },
+  {
+    "id": "counter_attack",
+    "name": "Counter-Attack",
+    "directive_type": "COMBAT",
+    "damage": 6,
+    "heal": 0,
+    "overload_cost": 2,
+    "range_": 2,
+    "move_range": 0,
+    "pattern": "SINGLE",
+    "keywords": ["kinetic", "cc", "reactive"],
+    "description": "Aggressive counter-strike. Deals extra damage if attacker is adjacent."
+  }
+]

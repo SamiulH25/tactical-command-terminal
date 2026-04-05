@@ -1,0 +1,41 @@
+[
+  {
+    "id": "improvised_explosive",
+    "name": "Improvised Explosive",
+    "directive_type": "COMBAT",
+    "damage": 9,
+    "heal": 0,
+    "overload_cost": 3,
+    "range_": 2,
+    "move_range": 0,
+    "pattern": "SINGLE",
+    "keywords": ["explosive", "rebel", "risky"],
+    "description": "Hastily assembled bomb. High damage but risks overheating your own mech."
+  },
+  {
+    "id": "scavenge",
+    "name": "Scavenge",
+    "directive_type": "UTILITY",
+    "damage": 0,
+    "heal": 2,
+    "overload_cost": 1,
+    "range_": 0,
+    "move_range": 0,
+    "pattern": "SELF",
+    "keywords": ["utility", "rebel", "salvage"],
+    "description": "Salvage parts from the battlefield. Heal 2 HP and gain 5 credits."
+  },
+  {
+    "id": "guerrilla_tactics",
+    "name": "Guerrilla Tactics",
+    "directive_type": "MOVEMENT",
+    "damage": 0,
+    "heal": 0,
+    "overload_cost": 1,
+    "range_": 0,
+    "move_range": 3,
+    "pattern": "SELF",
+    "keywords": ["movement", "rebel", "evasion"],
+    "description": "Hit-and-run manoeuvre. Move 3 cells and gain +10 evasion until next turn."
+  }
+]
